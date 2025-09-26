@@ -18,7 +18,7 @@ public class CommentInMemoryRepository : ICommentRepository
 
     public Task UpdateAsync(Comment comment)
     {
-        Comment? existingComment = comments.SingleOrDefault(c => c.Id == c.Id);
+        Comment? existingComment = comments.SingleOrDefault(c => c.Id == comment.Id);
         if (existingComment is null)
         {
             throw new InvalidOperationException(
