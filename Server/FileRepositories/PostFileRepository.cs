@@ -21,7 +21,7 @@ public class PostFileRepository : IPostRepository
     {
         string postAsJson = await File.ReadAllTextAsync(filePath);
         List<Post> posts = JsonSerializer.Deserialize<List<Post>>(postAsJson)!;
-        int maxId = posts.Count > 0 ? posts.Max(c => c.Id) : 1;
+        int maxId = posts.Count > 0 ? posts.Max(p => p.Id) : 1;
         post.Id = maxId + 1;
         posts.Add(post);
         postAsJson = JsonSerializer.Serialize(posts);
@@ -29,24 +29,58 @@ public class PostFileRepository : IPostRepository
         return post;
     }
 
-    public Task UpdateAsync(Post post)
+    public async Task UpdateAsync(Post post)
     {
-        throw new NotImplementedException();
+        string postAsJson = await File.ReadAllTextAsync(filePath);
+        List<Post> posts = JsonSerializer.Deserialize<List<Post>>(postAsJson)!;
+        Post? existingPost = posts.SingleOrDefault(p => p.Id == post.Id);
+        if (existingPost is null)
+        {
+            throw new InvalidOperationException(
+                $"Comment with ID '{post.Id} not found");
+        }
+
+        posts.Remove(existingPost);
+        posts.Add(post);
+        postAsJson = JsonSerializer.Serialize(posts);
+        await File.WriteAllTextAsync(filePath, postAsJson);
     }
     
 
     public async Task DeleteAsync(int id)
     {
-        
+        string postAsJson = await File.ReadAllTextAsync(filePath);
+        List<Post> posts = JsonSerializer.Deserialize<List<Post>>(postAsJson)!;
+        Post? postToRemove = posts.SingleOrDefault(p => p.Id == id);
+        if (postToRemove is null)
+        {
+            throw new InvalidOperationException(
+                $"Comment with ID '{id}' not found");
+        }
+
+        posts.Remove(postToRemove);
+        postAsJson = JsonSerializer.Serialize(posts);
+        await File.WriteAllTextAsync(filePath, postAsJson);
     }
 
     public async Task<Post> GetSingleAsync(int id)
     {
-        
+        string postAsJson = await File.ReadAllTextAsync(filePath);
+        List<Post> posts = JsonSerializer.Deserialize<List<Post>>(postAsJson)!;
+        Post? post = posts.SingleOrDefault(p => p.Id == id);
+        if (post is null)
+        {
+            throw new InvalidOperationException(
+                $"Comment with ID '{id}' not found");
+        }
+
+        return post;
     }
 
     public IQueryable<Post> GetMany()
     {
-        throw new NotImplementedException();
+        string postAsJson = File.ReadAllTextAsync(filePath).Result;
+        List<Post> posts = JsonSerializer.Deserialize<List<Post>>(postAsJson)!;
+        return posts.AsQueryable();
     }
 }
