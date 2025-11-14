@@ -1,4 +1,4 @@
-namespace ApiContracts;
+namespace ApiContracts.CommentDtos;
 
 public class CommentDto
 {
