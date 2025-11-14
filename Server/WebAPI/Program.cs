@@ -29,5 +29,12 @@ if (app.Environment.IsDevelopment())
 
 // app.UseHttpRedirection();
 
+builder.Services.AddScoped<IUserRepository, UserFileRepository>();
+builder.Services.AddScoped<IPostRepository, PostFileRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentFileRepository>();
+
+builder.Services.AddControllers();
+app.MapControllers();
+ 
 app.Run();
 
