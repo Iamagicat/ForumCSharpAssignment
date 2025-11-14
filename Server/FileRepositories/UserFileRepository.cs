@@ -7,7 +7,8 @@ namespace FileRepositories;
 
 public class UserFileRepository : IUserRepository
 {
-    private readonly string filePath = "comments.json";
+    private readonly string filePath = "users.json";
+
 
     public UserFileRepository()
     {
@@ -23,7 +24,12 @@ public class UserFileRepository : IUserRepository
     {
         string userAsJson = await File.ReadAllTextAsync(filePath);
         List<User> users = JsonSerializer.Deserialize<List<User>>(userAsJson)!;
-        
+        int maxId = users.Count > 0 ? users.Max(u => u.Id) : 1;
+        user.Id = maxId + 1;
+        users.Add(user);
+        userAsJson = JsonSerializer.Serialize(users);
+        await File.WriteAllTextAsync(filePath, userAsJson);
+        return user;
     }
 
     public async Task UpdateAsync(User user)
